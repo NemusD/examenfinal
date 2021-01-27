@@ -3,9 +3,9 @@ const app = express();
 const users = require('./db/consultas.js')
 const jwt = require('jsonwebtoken')
 const bodyParser = require('body-parser')
-const { root } = require('router')
+const { router } = require('router')
 const { obtenerUsuarios, cambiarEstado, crearUsuario, filtrarporEstado} = require('./db/consultas');
-const { Router } = require('express');
+
 
 //Servidor
 app.listen(3005, () => {
@@ -18,13 +18,15 @@ app.use(express.static("public"))
 
 //Conexión Home
 app.get("/Home", (req, res) => {
-    res.sendFile(__dirname + "/views/home.html")
+    res.sendFile(__dirname + "/views/Home.html")
     onclick (bg-light) = users.crearUsuario
     //res.write()
-    res.redirect("/Login")
+    res.redirect(__dirname + "views/Login.html")
 })
+console.log(crearUsuario)
 console.log(filtrarporEstado)
-Router.use('/secure', function(req, res, next) {
+
+router.use('/secure', function(req, res, next) {
     var token = req.headers['authorization']
     if (!token) {
         res.status(401).send({
@@ -54,7 +56,7 @@ const token_tiempo = jwt.sign({
 },
 secretkey
 )
-console.log(crearUsuario)
+console.log(token)
 
 //Token
 app.get("/JWT", (req, res) => {
@@ -68,15 +70,11 @@ app.get("/validaJWT", (req, res) => {
 })
 console.log(token)
 
-app.get("/Admin", (req, res) => {
-    req.get(token)
-    res.sendFile(__dirname + "/views/Admin.html")
-    const tabla = obtenerUsuarios
-    res.write(tabla)
-},
+
 
 //Acceso a probar token con expiración
 app.get("/Login", (req, res) => {
+    res.sendFile(__dirname + '/views/Login.html')
     //Validación de correo
     const { correo, contraseña } = req.query;
     const usuario = obtenerUsuarios.find((users)=> users.correo == correo &&  users.contraseña == contraseña);
@@ -114,7 +112,7 @@ app.get("/Login", (req, res) => {
             });
         } else{
             res.send(`Bienvenido ${nombre} has sido validado por entes superiores ${decoded.data.nombre}`);
-            res.redirect("/Evidencia")    
+            res.redirect(__dirname + '/views/Evidencias.html')    
         }
             req.token = token
             next()
@@ -122,6 +120,13 @@ app.get("/Login", (req, res) => {
     );
     }),
     console.log(cambiarEstado),
+
+    app.get("/Admin", async (req, res) => {
+        req.get(token)
+        res.sendFile(__dirname + "/views/Admin.html")
+        const tabla = await obtenerUsuarios()
+        res.write(tabla)
+    },
 
 app.use(
     expressFileUpload({
@@ -132,10 +137,10 @@ app.use(
 ),
 
 app.post("/Evidencias", (req, res) => {
+    res.sendFile(__dirname + '/views/Evidencias.html')
     const foto = req.files.target_file;
     const { posicion } = req.body;
     foto.mv(`${__dirname}/public/img/${foto}.jpg`, (err) => {
         res.send(`Gracias ${decoded.data.nombre}`);
     })   
-})
-/* console.log(onclick); */)
+}))
