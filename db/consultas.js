@@ -9,7 +9,7 @@ const pool = new Pool ({
 
 async function obtenerUsuarios(){
     try{
-        const resultado = await pool.query( "SELECT id, correo, nombre, contraseña, auth FROM nasa_usuarios");
+        const resultado = await pool.query( "SELECT id, correo, nombre, contraseña, auth FROM nasa_usuarios RETURNING *");
         return resultado.rows;
     }catch (ex){
         console.log(ex);
